@@ -17,6 +17,16 @@ provider "aws" {
   region = "us-west-2"
 }
 
+data "aws_ami" "ubuntu_west" {
+  provider    = aws.west
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+}
+
 resource "aws_instance" "east" {
   count         = 3
   provider      = aws.east
@@ -27,6 +37,6 @@ resource "aws_instance" "east" {
 resource "aws_instance" "west" {
   count         = 2
   provider      = aws.west
-  ami           = "ami-0c2d3e23f757b5d84" # Ubuntu 20.04 LTS // us-west-2
+  ami           = data.aws_ami.ubuntu_west.id
   instance_type = "t2.micro"
 }
